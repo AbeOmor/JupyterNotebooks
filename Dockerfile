@@ -83,11 +83,9 @@ USER root
 # INSTALL ANYTHING ELSE YOU WANT IN THIS CONTAINER HERE
 
 # Install kubectl
-RUN apt-get install -y apt-transport-https gnupg2 \
-    && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-    && echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list \
-    && apt-get update \
-    && apt-get install -y kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin
 
 USER ${USER}
 
