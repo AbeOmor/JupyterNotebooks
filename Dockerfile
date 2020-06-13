@@ -79,6 +79,7 @@ ENV DOTNET_TRY_CLI_TELEMETRY_OPTOUT=false
 # FROM dotnet/interactive:latest
 
 # INSTALL ANYTHING ELSE YOU WANT IN THIS CONTAINER HERE
+RUN apt install snapd
 RUN snap install kubectl --classic
 
 # Copy notebooks (So MyBinder will work)
