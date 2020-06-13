@@ -81,8 +81,13 @@ ENV DOTNET_TRY_CLI_TELEMETRY_OPTOUT=false
 USER root
 
 # INSTALL ANYTHING ELSE YOU WANT IN THIS CONTAINER HERE
-RUN apt install snapd
-RUN snap install kubectl --classic
+
+# Install kubectl
+RUN apt-get install -y apt-transport-https gnupg2 \
+    && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
+    && echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list \
+    && apt-get update \
+    && apt-get install -y kubectl
 
 USER ${USER}
 
