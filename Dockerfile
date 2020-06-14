@@ -92,6 +92,9 @@ USER ${USER}
 # Copy notebooks (So MyBinder will work)
 COPY . ${HOME}/data/JupyterNotebooks/
 
+# Reset the permissions
+RUN chown -R ${NB_UID} ${HOME}
+
 # Setup volume (So you can run locally with mounted filesystem)
 VOLUME ${HOME}/data/JupyterNotebooks/
 
