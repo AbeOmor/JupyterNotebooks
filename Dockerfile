@@ -90,10 +90,10 @@ RUN mv ./kubectl /usr/local/bin
 USER ${USER}
 
 # Copy notebooks (So MyBinder will work)
-COPY . /data/JupyterNotebooks/
+COPY . ${HOME}/data/JupyterNotebooks/
 
 # Setup volume (So you can run locally with mounted filesystem)
-# VOLUME /data/JupyterNotebooks/
+VOLUME ${HOME}/data/JupyterNotebooks/
 
 # Set root to notebooks
-WORKDIR /data/JupyterNotebooks/
+WORKDIR ${HOME}/data/JupyterNotebooks/
