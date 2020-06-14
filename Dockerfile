@@ -93,7 +93,7 @@ USER ${USER}
 COPY . /data/JupyterNotebooks/
 
 # Setup volume (So you can run locally with mounted filesystem)
-VOLUME /data/JupyterNotebooks/
+# VOLUME /data/JupyterNotebooks/
 
 # Set root to notebooks
 WORKDIR /data/JupyterNotebooks/
