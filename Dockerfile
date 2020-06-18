@@ -10,6 +10,11 @@ WORKDIR ${HOME}
 
 USER root
 
+# .NET SDK install uses curl
+RUN apt-get update \
+    && apt-get install -y curl
+
+# THE NEXT ENV AND 2 RUN's ARE FROM https://github.com/dotnet/dotnet-docker/blob/dad8a11d3193b10736d1b591aa4fae0dbda42566/src/sdk/3.1/focal/amd64/Dockerfile
 ENV \
     # Enable detection of running in a container
     DOTNET_RUNNING_IN_CONTAINER=true \
