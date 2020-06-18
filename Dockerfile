@@ -1,5 +1,15 @@
 FROM jupyter/scipy-notebook:latest
 
+ARG NB_USER=jovyan
+ARG NB_UID=1000
+ENV USER ${NB_USER}
+ENV NB_UID ${NB_UID}
+ENV HOME /home/${NB_USER}
+
+WORKDIR ${HOME}
+
+USER root
+
 ENV \
     # Enable detection of running in a container
     DOTNET_RUNNING_IN_CONTAINER=true \
