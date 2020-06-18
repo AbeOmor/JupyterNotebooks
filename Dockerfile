@@ -1,4 +1,4 @@
-FROM jupyter/base-notebook:latest
+FROM jupyter/minimal-notebook:latest
 
 ARG NB_USER=jupyteruser
 ARG NB_UID=1000
