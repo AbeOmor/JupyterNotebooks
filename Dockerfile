@@ -89,6 +89,9 @@ RUN mv ./kubectl /usr/local/bin
 
 USER ${USER}
 
+# Set up kubectl autocompletion
+RUN echo 'source <(kubectl completion bash)' >>~/.bashrc
+
 # Copy notebooks (So MyBinder will work)
 COPY . ${HOME}/data/JupyterNotebooks/
 
