@@ -86,6 +86,9 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
 
+# Install bash-completion
+RUN apt-get install bash-completion
+
 USER ${USER}
 
 # Set up kubectl autocompletion
