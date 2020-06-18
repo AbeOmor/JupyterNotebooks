@@ -86,12 +86,11 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
 
-RUN apt update && apt install -y bash-completion
+# Set up kubectl autocompletion
+RUN apt-get update && apt-get install -y bash-completion
+RUN kubectl completion bash >/etc/bash_completion.d/kubectl
 
 USER ${USER}
-
-# Set up kubectl autocompletion
-RUN echo 'source <(kubectl completion bash)' >>~/.bashrc
 
 # Copy notebooks (So MyBinder will work)
 COPY . ${HOME}/data/JupyterNotebooks/
