@@ -87,7 +87,7 @@ RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
 
 # Install bash-completion
-RUN apt-get install bash-completion
+RUN apt-get install -y bash-completion
 
 USER ${USER}
 
