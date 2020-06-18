@@ -1,6 +1,6 @@
 FROM jupyter/base-notebook:latest
 
-ARG NB_USER=jovyan
+ARG NB_USER=jupyteruser
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
