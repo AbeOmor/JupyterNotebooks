@@ -48,9 +48,6 @@ RUN dotnet_sdk_version=3.1.301 \
     && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
     # Trigger first run experience by running arbitrary cmd
     && dotnet help
-    
-# Install PowerShell global tool
-RUN dotnet tool install -g powershell
 
 # Copy package sources
 
@@ -84,6 +81,9 @@ ENV DOTNET_TRY_CLI_TELEMETRY_OPTOUT=false
 USER root
 
 # INSTALL ANYTHING ELSE YOU WANT IN THIS CONTAINER HERE
+
+# Install PowerShell global tool
+RUN dotnet tool install -g powershell
 
 # Install kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
