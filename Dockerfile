@@ -82,9 +82,6 @@ USER root
 
 # INSTALL ANYTHING ELSE YOU WANT IN THIS CONTAINER HERE
 
-# Install PowerShell global tool
-RUN dotnet tool install -g powershell
-
 # Install kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
     && chmod +x ./kubectl \
@@ -95,6 +92,9 @@ RUN apt-get update && apt-get install -y bash-completion \
     && kubectl completion bash >/etc/bash_completion.d/kubectl
 
 USER ${USER}
+
+# Install PowerShell global tool
+RUN dotnet tool install -g powershell
 
 # Copy notebooks (So MyBinder will work)
 COPY . ${HOME}/data/JupyterNotebooks/
