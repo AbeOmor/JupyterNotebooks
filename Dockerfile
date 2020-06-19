@@ -110,6 +110,9 @@ USER ${USER}
 # Copy notebooks (So MyBinder will work)
 COPY . ${HOME}/data/JupyterNotebooks/
 
+# Copy theme settings
+COPY ./config/ ${HOME}/.jupyter/lab/user-settings/@jupyterlab/
+
 # Modify the permissions
 USER root
 RUN chown -R ${NB_UID} ${HOME}
