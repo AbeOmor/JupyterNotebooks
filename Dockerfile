@@ -106,18 +106,13 @@ RUN apt-get update && apt-get install -y bash-completion \
 USER ${USER}
 
 # Copy notebooks (So MyBinder will work)
-COPY . ${HOME}/data/JupyterNotebooks/
+COPY --chown=${USER}:root . /data/JupyterNotebooks/
 
 # Copy theme settings
-COPY ./config/ ${HOME}/.jupyter/lab/user-settings/@jupyterlab/
-
-# Modify the permissions
-USER root
-RUN chown -R ${NB_UID} ${HOME}
-USER ${USER}
+COPY --chown=${USER}:root ./config/ ${HOME}/.jupyter/lab/user-settings/@jupyterlab/
 
 # Setup volume (So you can run locally with mounted filesystem)
-VOLUME ${HOME}/data/JupyterNotebooks/
+VOLUME /data/JupyterNotebooks/
 
 # Set root to notebooks
-WORKDIR ${HOME}/data/JupyterNotebooks/
+WORKDIR /data/JupyterNotebooks/
