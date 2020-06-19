@@ -1,6 +1,8 @@
 FROM jupyter/minimal-notebook:latest
 
-ARG NB_USER=jupyteruser
+# Install .NET CLI dependencies
+
+ARG NB_USER=jovyan
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
@@ -8,13 +10,12 @@ ENV HOME /home/${NB_USER}
 
 WORKDIR ${HOME}
 
+# Use root to install .NET
 USER root
 
-# .NET SDK install uses curl
 RUN apt-get update \
     && apt-get install -y curl
 
-# THE NEXT ENV AND 2 RUN's ARE FROM https://github.com/dotnet/dotnet-docker/blob/dad8a11d3193b10736d1b591aa4fae0dbda42566/src/sdk/3.1/focal/amd64/Dockerfile
 ENV \
     # Enable detection of running in a container
     DOTNET_RUNNING_IN_CONTAINER=true \
@@ -22,8 +23,8 @@ ENV \
     DOTNET_USE_POLLING_FILE_WATCHER=true \
     # Skip extraction of XML docs - generally not useful within an image/container - helps performance
     NUGET_XMLDOC_MODE=skip \
-    # PowerShell telemetry for docker image usage
-    POWERSHELL_DISTRIBUTION_CHANNEL=PSDocker-DotnetCoreSDK-Ubuntu-20.04
+    # Opt out of telemetry until after we install jupyter when building the image, this prevents caching of machine id
+    DOTNET_TRY_CLI_TELEMETRY_OPTOUT=true
 
 # Install .NET CLI dependencies
 RUN apt-get update \
@@ -50,23 +51,10 @@ RUN dotnet_sdk_version=3.1.301 \
     && dotnet help
 
 # Copy package sources
-
-# COPY ./nuget.config ${HOME}/nuget.config
+COPY ./NuGet.config ${HOME}/nuget.config
 
 RUN chown -R ${NB_UID} ${HOME}
 USER ${USER}
-
-#Install nteract 
-RUN pip install nteract_on_jupyter
-
-# Install lastest build from master branch of Microsoft.DotNet.Interactive from myget
-RUN dotnet tool install -g Microsoft.dotnet-interactive --add-source "https://dotnet.myget.org/F/dotnet-try/api/v3/index.json"
-
-#latest stable from nuget.org
-#RUN dotnet tool install -g Microsoft.dotnet-interactive --add-source "https://api.nuget.org/v3/index.json"
-
-ENV PATH="${PATH}:${HOME}/.dotnet/tools"
-RUN echo "$PATH"
 
 # Install PowerShell global tool
 RUN powershell_version=7.0.2 \
@@ -77,8 +65,14 @@ RUN powershell_version=7.0.2 \
     && dotnet tool install -g --add-source . --version $powershell_version PowerShell.Linux.x64 \
     && rm PowerShell.Linux.x64.$powershell_version.nupkg
 
-# This works... but pwsh does not show up in the container
-RUN pwsh -c '"hello from PowerShell"'
+#Install nteract 
+RUN pip install nteract_on_jupyter
+
+# Install lastest build from master branch of Microsoft.DotNet.Interactive from myget
+RUN dotnet tool install -g Microsoft.dotnet-interactive --version 1.0.131701 --add-source "https://dotnet.myget.org/F/dotnet-try/api/v3/index.json"
+
+ENV PATH="${PATH}:${HOME}/.dotnet/tools"
+RUN echo "$PATH"
 
 # Install kernel specs
 RUN dotnet interactive jupyter install
@@ -90,9 +84,9 @@ ENV DOTNET_TRY_CLI_TELEMETRY_OPTOUT=false
 # THIS MEANS IN THE FUTURE, THE ABOVE WILL TURN INTO SIMPLY:
 # FROM dotnet/interactive:latest
 
-USER root
-
 # INSTALL ANYTHING ELSE YOU WANT IN THIS CONTAINER HERE
+
+USER root
 
 # Install kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
@@ -103,16 +97,23 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN apt-get update && apt-get install -y bash-completion \
     && kubectl completion bash >/etc/bash_completion.d/kubectl
 
+# Install UnixCompleters module so that kubectl completions work
+RUN pwsh -c Install-Module Microsoft.PowerShell.UnixCompleters -Force
+
 USER ${USER}
 
 # Copy notebooks (So MyBinder will work)
-COPY --chown=${USER}:root . /data/JupyterNotebooks/
+COPY --chown=${USER}:users . /data/JupyterNotebooks/
 
 # Copy theme settings
-COPY --chown=${USER}:root ./config/ ${HOME}/.jupyter/lab/user-settings/@jupyterlab/
+RUN mkdir -p ${HOME}/.jupyter/lab/user-settings/
+COPY --chown=${USER}:users ./config/ ${HOME}/.jupyter/lab/user-settings/@jupyterlab/
+
+# Copy profile.ps1
+COPY --chown=${USER}:users profile.ps1 ${HOME}/.config/powershell/Microsoft.dotnet-interactive_profile.ps1
 
 # Setup volume (So you can run locally with mounted filesystem)
 VOLUME /data/JupyterNotebooks/
 
-# Set root to notebooks
+# Set root to Notebooks
 WORKDIR /data/JupyterNotebooks/
