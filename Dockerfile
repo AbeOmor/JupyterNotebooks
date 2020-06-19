@@ -49,20 +49,6 @@ RUN dotnet_sdk_version=3.1.301 \
     # Trigger first run experience by running arbitrary cmd
     && dotnet help
 
-# Install PowerShell global tool
-RUN powershell_version=7.0.2 \
-    && curl -SL --output PowerShell.Linux.x64.$powershell_version.nupkg https://pwshtool.blob.core.windows.net/tool/$powershell_version/PowerShell.Linux.x64.$powershell_version.nupkg \
-    && powershell_sha512='35ccceb6b72e92028a9a4fb83ca43951433dbb700d7e13ef27c69f15d96e3dcfea91cb0ed616baeb00a173edb0050d1596d826c86b4b6cf327ae182198c1f7fd' \
-    && echo "$powershell_sha512  PowerShell.Linux.x64.$powershell_version.nupkg" | sha512sum -c - \
-    && mkdir -p /usr/share/powershell \
-    && dotnet tool install --add-source . --tool-path /usr/share/powershell --version $powershell_version PowerShell.Linux.x64 \
-    && dotnet nuget locals all --clear \
-    && rm PowerShell.Linux.x64.$powershell_version.nupkg \
-    && ln -s /usr/share/powershell/pwsh /usr/bin/pwsh \
-    && chmod 755 /usr/share/powershell/pwsh \
-    # To reduce image size, remove the copy nupkg that nuget keeps.
-    && find /usr/share/powershell -print | grep -i '.*[.]nupkg$' | xargs rm
-
 # Copy package sources
 
 # COPY ./nuget.config ${HOME}/nuget.config
@@ -81,6 +67,18 @@ RUN dotnet tool install -g Microsoft.dotnet-interactive --add-source "https://do
 
 ENV PATH="${PATH}:${HOME}/.dotnet/tools"
 RUN echo "$PATH"
+
+# Install PowerShell global tool
+RUN powershell_version=7.0.2 \
+    && curl -SL --output PowerShell.Linux.x64.$powershell_version.nupkg https://pwshtool.blob.core.windows.net/tool/$powershell_version/PowerShell.Linux.x64.$powershell_version.nupkg \
+    && powershell_sha512='35ccceb6b72e92028a9a4fb83ca43951433dbb700d7e13ef27c69f15d96e3dcfea91cb0ed616baeb00a173edb0050d1596d826c86b4b6cf327ae182198c1f7fd' \
+    && echo "$powershell_sha512  PowerShell.Linux.x64.$powershell_version.nupkg" | sha512sum -c - \
+    && mkdir -p ${HOME}/.dotnet/tools/powershell \
+    && dotnet tool install -g --add-source . --version $powershell_version PowerShell.Linux.x64 \
+    && rm PowerShell.Linux.x64.$powershell_version.nupkg
+
+# This works... but pwsh does not show up in the container
+RUN pwsh -c '"hello from PowerShell"'
 
 # Install kernel specs
 RUN dotnet interactive jupyter install
